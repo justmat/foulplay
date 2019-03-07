@@ -93,6 +93,7 @@
 -- destination cell.
 -- release the copy button.
 --
+-- v1
 
 er = require 'er'
 
@@ -101,7 +102,7 @@ engine.name = 'Ack'
 local g = grid.connect()
 local m = midi.connect()
 
-local ack = require 'jah/ack'
+local ack = require 'ack'
 local BeatClock = require 'beatclock'
 
 local clk = BeatClock.new()
@@ -203,13 +204,13 @@ local function trig()
         if params:get(i.."send_midi") == 1 then
           engine.trig(i-1)
         else
-          m.note_on(params:get(i.."midi_note"), 100, params:get(i.."midi_chan"))
+          m:note_on(params:get(i.."midi_note"), 100, params:get(i.."midi_chan"))
           note_off_queue[i] = 1
         end
       end
     else
       if note_off_queue[i] == 1 then
-        m.note_off(params:get(i.."midi_note"), 100, params:get(i.."midi_chan"))
+        m:note_off(params:get(i.."midi_note"), 100, params:get(i.."midi_chan"))
         note_off_queue[i] = 0
       end
     end
@@ -220,13 +221,13 @@ local function trig()
           if params:get(i.."send_midi") == 1 then
             engine.trig(i-1)
           else
-            m.note_on(params:get(i.."midi_note"), 100, params:get(i.."midi_chan"))
+            m:note_on(params:get(i.."midi_note"), 100, params:get(i.."midi_chan"))
             note_off_queue[i] = 1
           end
         else break end
       else
         if note_off_queue[i] == 1 then
-          m.note_off(params:get(i.."midi_note"), 100, params:get(i.."midi_chan"))
+          m:note_off(params:get(i.."midi_note"), 100, params:get(i.."midi_chan"))
           note_off_queue[i] = 0
         end
       end
@@ -237,13 +238,13 @@ local function trig()
           if params:get(i.."send_midi") == 1 then
             engine.trig(i-1)
           else
-            m.note_on(params:get(i.."midi_note"), 100, params:get(i.."midi_chan"))
+            m:note_on(params:get(i.."midi_note"), 100, params:get(i.."midi_chan"))
             note_off_queue[i] = 1
           end
         else break end
       else
         if note_off_queue[i] == 1 then
-          m.note_off(params:get(i.."midi_note"), 100, params:get(i.."midi_chan"))
+          m:note_off(params:get(i.."midi_note"), 100, params:get(i.."midi_chan"))
           note_off_queue[i] = 0
         end
       end
@@ -255,13 +256,13 @@ local function trig()
           if params:get(i.."send_midi") == 1 then
             engine.trig(i-1)
           else
-            m.note_on(params:get(i.."midi_note"), 100, params:get(i.."midi_chan"))
+            m:note_on(params:get(i.."midi_note"), 100, params:get(i.."midi_chan"))
             note_off_queue[i] = 1
           end
         else break end
       else
         if note_off_queue[i] == 1 then
-          m.note_off(params:get(i.."midi_note"), 100, params:get(i.."midi_chan"))
+          m:note_off(params:get(i.."midi_note"), 100, params:get(i.."midi_chan"))
           note_off_queue[i] = 0
         end
       end
@@ -272,13 +273,13 @@ local function trig()
           if params:get(i.."send_midi") == 1 then
             engine.trig(i-1)
           else
-            m.note_on(params:get(i.."midi_note"), 100, params:get(i.."midi_chan"))
+            m:note_on(params:get(i.."midi_note"), 100, params:get(i.."midi_chan"))
             note_off_queue[i] = 1
           end
         else break end
       else
         if note_off_queue[i] == 1 then
-          m.note_off(params:get(i.."midi_note"), 100, params:get(i.."midi_chan"))
+          m:note_off(params:get(i.."midi_note"), 100, params:get(i.."midi_chan"))
           note_off_queue[i] = 0
         end
       end
@@ -291,11 +292,11 @@ local function trig()
           if params:get(i.."send_midi") == 1 then
             engine.trig(i-1)
           else
-            m.note_on(params:get(i.."midi_note"), 100, params:get(i.."midi_chan"))
+            m:note_on(params:get(i.."midi_note"), 100, params:get(i.."midi_chan"))
             note_off_queue[i] = 1
           end
           if note_off_queue[i] == 1 then
-            m.note_off(params:get(i.."midi_note"), 100, params:get(i.."midi_chan"))
+            m:note_off(params:get(i.."midi_note"), 100, params:get(i.."midi_chan"))
             note_off_queue[i] = 0
           end
         end
@@ -326,7 +327,7 @@ function init()
   end
   ack.add_effects_params()
   -- load default pset
-  params:read("justmat/foulplay.pset")
+  params:read("foulplay.pset")
   params:bang()
   -- load pattern data
   loadstate()
@@ -338,10 +339,10 @@ function init()
   end
 
   -- grid refresh timer, 15 fps
-  metro_grid_redraw = metro.alloc(function(stage) grid_redraw() end, 1 / 15)
+  metro_grid_redraw = metro.init(function(stage) grid_redraw() end, 1 / 15)
   metro_grid_redraw:start()
   -- blink for copy mode
-  metro_blink = metro.alloc(function(stage) blink = not blink end, 1 / 4)
+  metro_blink = metro.init(function(stage) blink = not blink end, 1 / 4)
   metro_blink:start()
 end
 
@@ -663,7 +664,7 @@ end
 
 -- grid stuff - junklight
 
-function g.event(x, y, state)
+function g.key(x, y, state)
   -- use first column to switch track edit
   if x == 1 then
     track_edit = y
@@ -766,70 +767,70 @@ function grid_redraw()
     -- bail if we are too early
     return
   end
-  g.all(0)
+  g:all(0)
   -- highlight current track
-  g.led(1, track_edit, 15)
+  g:led(1, track_edit, 15)
   -- track edit page buttons
   for page = 0, 3 do
-      g.led(page + 4, 8, 3)
+      g:led(page + 4, 8, 3)
   end
   -- highlight page if open
   if view == 1 then
-    g.led(page + 4, 8, 14)
+    g:led(page + 4, 8, 14)
   end
   -- mutes - bright for on, dim for off
   for i = 1,8 do
     if gettrack(current_mem_cell, i).mute == 1 then
-      g.led(2, i, 15)
-    else g.led(2, i, 4)
+      g:led(2, i, 15)
+    else g:led(2, i, 4)
     end
   end
   -- memory cells
   for x = 4,8 do
     for y = 1,5 do
-      g.led(x, y, 3)
+      g:led(x, y, 3)
     end
   end
   -- highlight active cell
-  g.led(current_mem_cell_x, current_mem_cell_y, 15)
+  g:led(current_mem_cell_x, current_mem_cell_y, 15)
   if copy_mode then
     -- copy mode - blink the source if set
     if copy_source_x ~= -1 then
       if blink then
-        g.led(copy_source_x, copy_source_y, 4)
+        g:led(copy_source_x, copy_source_y, 4)
       else
-        g.led(copy_source_x, copy_source_y, 12)
+        g:led(copy_source_x, copy_source_y, 12)
       end
     end
   end
   -- start/stop
   if stopped == 0 then
-    g.led(4, 7, 15)
+    g:led(4, 7, 15)
   elseif stopped == 1 then
     if blink then
-      g.led(4, 7, 4)
+      g:led(4, 7, 4)
     else
-      g.led(4, 7, 12)
+      g:led(4, 7, 12)
     end
   end
   -- reset button
-  g.led(5, 7, 3)
+  g:led(5, 7, 3)
   -- load pset button
   if pset_load_mode then
-    g.led(8, 7, 12)
-  else g.led(8, 7, 3) end
+    g:led(8, 7, 12)
+  else g:led(8, 7, 3) end
   -- copy button
   if copy_mode  then
-    g.led(8, 8, 14)
+    g:led(8, 8, 14)
   else
-    g.led(8, 8, 3)
+    g:led(8, 8, 3)
   end
-  g.refresh()
+  g:refresh()
 end
 
 
 function savestate()
-  local file = io.open(data_dir .. "justmat/foulplay-pattern.data", "w+")
+  local file = io.open(data_dir .. "foulplay-pattern.data", "w+")
   io.output(file)
   io.write("v1" .. "\n")
   for j = 1, 25 do
@@ -847,7 +848,7 @@ function savestate()
 end
 
 function loadstate()
-  local file = io.open(data_dir .. "justmat/foulplay-pattern.data", "r")
+  local file = io.open(data_dir .. "foulplay-pattern.data", "r")
   if file then
     print("datafile found")
     io.input(file)
