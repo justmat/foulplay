@@ -1,6 +1,3 @@
----
----
-
 # foulplay
 
 a euclidean instrument with trigger conditions.
@@ -48,7 +45,7 @@ in **track edit** parameters 1-3 are tied to their respective encoders.
 # grid 
 (coded by @junklight)
 
-![](FP_grid.png)
+![](assets/FP_grid.png)
 
 * a. track select column
 * b. track mute toggle column
