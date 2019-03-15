@@ -327,7 +327,7 @@ function init()
   end
   ack.add_effects_params()
   -- load default pset
-  params:read("foulplay.pset")
+  params:read()
   params:bang()
   -- load pattern data
   loadstate()
