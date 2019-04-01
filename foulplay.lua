@@ -830,7 +830,7 @@ end
 
 
 function savestate()
-  local file = io.open(data_dir .. "foulplay-pattern.data", "w+")
+  local file = io.open(_path.data .. "foulplay-pattern.data", "w+")
   io.output(file)
   io.write("v1" .. "\n")
   for j = 1, 25 do
@@ -848,7 +848,7 @@ function savestate()
 end
 
 function loadstate()
-  local file = io.open(data_dir .. "foulplay-pattern.data", "r")
+  local file = io.open(_path.data .. "foulplay-pattern.data", "r")
   if file then
     print("datafile found")
     io.input(file)
