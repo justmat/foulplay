@@ -98,11 +98,11 @@
 er = require 'er'
 
 engine.name = 'Ack'
+local ack = require 'ack/lib/ack'
 
 local g = grid.connect()
 local m = midi.connect()
 
-local ack = require 'we/lib/ack'
 local BeatClock = require 'beatclock'
 
 local clk = BeatClock.new()
