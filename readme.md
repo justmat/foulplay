@@ -76,6 +76,6 @@ the buttons in section **g** open track edit pages for your currently selected t
 
 ### saving/ loading your work
 
-to save your loaded samples and their settings, navigate to the ```PARAMETERS``` page and hold Norns Key1. turn Enc2 to select save, and Enc3 to scroll through available save slots.
+to save your loaded samples and their settings, navigate to the ```PARAMETERS``` page and hold Norns Key1. turn Enc2 to select save, and Enc3 to scroll through available save slots. use Key3 to save your data to the slot.
 
 pattern data, such as steps, fill, rotation, mute state, and logic settings are saved automatically every 10 seconds.
