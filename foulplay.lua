@@ -714,7 +714,7 @@ function g.key(x, y, state)
   -- load pset 1-25
   if pset_load_mode then
     if y >= 1 and y <= 5 and x >= 4 and x <= 8 and state == 1 then
-      params:read(string.format("%02d", cellfromgrid(x, y)))
+      params:read(cellfromgrid(x,y))
       params:bang()
       print("loaded pset " .. cellfromgrid(x, y))
       current_pset = cellfromgrid(x, y)
