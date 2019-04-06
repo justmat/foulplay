@@ -318,6 +318,7 @@ function init()
   -- add params
   clk:add_clock_params()
   params:add_separator()
+
   for i = 1, 8 do
     params:add_option(i.."send_midi", i..": send midi", {"no", "yes"}, 1)
     params:add_number(i.."midi_chan", i..": midi chan", 1, 16, 1)
@@ -344,6 +345,9 @@ function init()
   -- blink for copy mode
   metro_blink = metro.init(function(stage) blink = not blink end, 1 / 4)
   metro_blink:start()
+  -- savestate timer
+  metro_save = metro.init(function(stage) savestate() end, 10)
+  metro_save:start()
 end
 
 
@@ -710,7 +714,7 @@ function g.key(x, y, state)
   -- load pset 1-25
   if pset_load_mode then
     if y >= 1 and y <= 5 and x >= 4 and x <= 8 and state == 1 then
-      params:read("justmat/foulplay-" .. string.format("%02d", cellfromgrid(x, y)) .. ".pset")
+      params:read(string.format("%02d", cellfromgrid(x, y)))
       params:bang()
       print("loaded pset " .. cellfromgrid(x, y))
       current_pset = cellfromgrid(x, y)
@@ -830,7 +834,7 @@ end
 
 
 function savestate()
-  local file = io.open(_path.data .. "foulplay-pattern.data", "w+")
+  local file = io.open(_path.data .. "foulplay/foulplay-pattern.data", "w+")
   io.output(file)
   io.write("v1" .. "\n")
   for j = 1, 25 do
@@ -848,7 +852,7 @@ function savestate()
 end
 
 function loadstate()
-  local file = io.open(_path.data .. "foulplay-pattern.data", "r")
+  local file = io.open(_path.data .. "foulplay/foulplay-pattern.data", "r")
   if file then
     print("datafile found")
     io.input(file)
@@ -870,9 +874,4 @@ function loadstate()
     io.close(file)
   end
   for i = 1, 8 do reer(i) end
-end
-
-
-cleanup = function()
-  savestate()
 end
