@@ -76,7 +76,6 @@ the buttons in section **g** open track edit pages for your currently selected t
 
 ### saving/ loading your work
 
-foulplay will automatically save its _current state*_ whenever (a) you switch scripts, or (b) when norns _sleeps_. 
-loading is also automatic, and will happen anytime that you load foulplay.
+to save your loaded samples and their settings, navigate to the ```PARAMETERS``` page and hold Norns Key1. turn Enc2 to select save, and Enc3 to scroll through available save slots.
 
-*foulplays current state includes the 25 memory cells, accessible via grid, and their data.*
+pattern data, such as steps, fill, rotation, mute state, and logic settings are saved automatically every 10 seconds.
