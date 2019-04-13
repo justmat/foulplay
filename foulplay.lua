@@ -93,7 +93,9 @@
 -- destination cell.
 -- release the copy button.
 --
--- v1
+-- v1 @justmat
+--
+-- llllllll.co/t/21081
 
 er = require 'er'
 
