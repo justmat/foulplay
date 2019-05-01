@@ -119,6 +119,11 @@ local stopped = 1
 local pset_load_mode = false
 local current_pset = 0
 
+-- process incoming midi when set to external
+m.event = function(data)
+   clk:process_midi(data)
+end
+
 -- a table of midi note on/off status i = 1/0
 local note_off_queue = {}
 for i = 1, 8 do
@@ -661,13 +666,7 @@ function redraw()
   screen.stroke()
   screen.update()
 end
-
-
-midi.add = function(dev)
-  dev.event = clk.process_midi
-  print("foulplay: midi device added", dev.id, dev.name)
-end
-
+ 
 -- grid stuff - junklight
 
 function g.key(x, y, state)
