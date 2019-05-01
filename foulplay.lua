@@ -93,7 +93,7 @@
 -- destination cell.
 -- release the copy button.
 --
--- v1 @justmat
+-- v1.1 @justmat
 --
 -- llllllll.co/t/21081
 
