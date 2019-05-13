@@ -327,9 +327,9 @@ function init()
   params:add_separator()
 
   for i = 1, 8 do
-    params:add_option(i.."send_midi", i..": send midi", {"no", "yes"}, 1)
-    params:add_number(i.."midi_chan", i..": midi chan", 1, 16, 1)
-    params:add_number(i.."midi_note", i..": midi note", 0, 127, 0)
+    params:add_option(i.."_send_midi", i..": send midi", {"no", "yes"}, 1)
+    params:add_number(i.."_midi_chan", i..": midi chan", 1, 16, 1)
+    params:add_number(i.."_midi_note", i..": midi note", 0, 127, 0)
     ack.add_channel_params(i)
     params:add_separator()
   end
@@ -384,7 +384,7 @@ function key(n,z)
   -- home and track edit views
   if n==1 then view = z end
   if n==3 and z==1 and view==1 then
-    if params:get(track_edit.."send_midi") == 1 then
+    if params:get(track_edit.."_send_midi") == 1 then
       page = (page + 1) % 4
     -- there are only 2 pages of midi options
     else page = (page + 1) % 2 end
@@ -439,7 +439,7 @@ function enc(n,d)
   -- track edit view
   elseif view==1  and page==0 then
     -- only show the engine edit options if midi note send is off
-    if params:get(track_edit.."send_midi") == 1 then
+    if params:get(track_edit.."_send_midi") == 1 then
     -- per track volume control
       if n==1 then
         params:delta(track_edit .. "_vol", d)
@@ -561,7 +561,7 @@ function redraw()
     end
 
   elseif view==1 and page==0 then
-    if params:get(track_edit.."send_midi") == 1 then
+    if params:get(track_edit.."_send_midi") == 1 then
       screen.move(5, 10)
       screen.level(15)
       screen.text("track : " .. track_edit)
