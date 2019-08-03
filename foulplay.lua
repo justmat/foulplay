@@ -383,11 +383,14 @@ end
 function key(n,z)
   -- home and track edit views
   if n==1 then view = z end
-  if n==3 and z==1 and view==1 then
-    if params:get(track_edit.."_send_midi") == 1 then
-      page = (page + 1) % 4
-    -- there are only 2 pages of midi options
-    else page = (page + 1) % 2 end
+  -- track edit view
+  if view==1 then
+    if n==3 and z==1 then
+      if params:get(track_edit.."_send_midi") == 1 then
+        page = (page + 1) % 4
+      -- there are only 2 pages of midi options
+      else page = (page + 1) % 2 end
+    end
   end
   if n==3 then alt = z end
   -- track selection in track edit view
@@ -400,9 +403,13 @@ function key(n,z)
   if alt==1 then
     -- track phase reset
     if n==2 and z==1 then
-      reset_pattern()
-      if stopped == 1 then
-          step()
+      if gettrack(current_mem_cell, track_edit).mute == 1 then
+        gettrack(current_mem_cell, track_edit).mute = gettrack(current_mem_cell, track_edit).mute == 0 and 1 or 0
+      else
+        reset_pattern()
+        if stopped == 1 then
+            step()
+        end
       end
     end
   end
@@ -457,7 +464,6 @@ function enc(n,d)
         params:delta(track_edit .. "_midi_note", d)
       end
     end
-
   elseif view==1 and page==1 then
     -- trigger logic and probability settings
     if n==1 then
@@ -507,6 +513,7 @@ end
 function redraw()
   screen.aa(0)
   screen.clear()
+  
   if view==0 and alt==0 then
     for i=1, 8 do
       if gettrack(current_mem_cell, i).mute == 1 then
@@ -542,6 +549,14 @@ function redraw()
     screen.move(0, 40 + 11)
     if params:get("clock") == 1 then
       screen.text(params:get("bpm"))
+    end
+    if gettrack(current_mem_cell, track_edit).mute == 1 then
+      screen.font_face(25)
+      screen.font_size(6)
+      screen.move(0, 60)
+      screen.text("muted")
+      screen.font_face(1)
+      screen.font_size(8)
     end
 
     for i=1,8 do
