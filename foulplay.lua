@@ -324,19 +324,21 @@ function init()
   for i=1, 8 do reer(i) end
 
   screen.line_width(1)
-
+  params:add_separator('tracks')
   for i = 1, 8 do
+    params:add_group("track " .. i, 25)
+    ack.add_channel_params(i)
     params:add_option(i.."_send_midi", i..": send midi", {"no", "yes"}, 1)
     params:add_number(i.."_midi_chan", i..": midi chan", 1, 16, 1)
     params:add_number(i.."_midi_note", i..": midi note", 0, 127, 0)
+  end
+  params:add_separator('crow sends')
+  for i = 1, 8 do
     if i <= 4 then
       params:add_option(i .. "_send_crow", i .. ": send crow", {"no", "yes"}, 1)
     end
-    params:add_separator()
-
-    ack.add_channel_params(i)
-    params:add_separator()
   end
+  params:add_separator('effects')
   ack.add_effects_params()
   -- load default pset
   params:read()
@@ -557,7 +559,7 @@ function redraw()
     screen.move(0, 30 + 11)
     screen.text("bpm")
     screen.move(0, 40 + 11)
-    screen.text(clock.get_tempo())
+    screen.text(string.format("%.1f", clock.get_tempo()))
     if gettrack(current_mem_cell, track_edit).mute == 1 then
       screen.font_face(25)
       screen.font_size(6)
