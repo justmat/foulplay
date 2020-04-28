@@ -120,11 +120,6 @@ local pset_load_mode = false
 local current_pset = 0
 local run = true
 
---[[process incoming midi when set to external
-m.event = function(data)
-   clk:process_midi(data)
-end]]
-
 function pulse()
   while run do
     clock.sync(1/4)
@@ -330,14 +325,6 @@ function init()
 
   screen.line_width(1)
 
-  --[[clk.on_step = step
-  clk.on_select_internal = function() clk:start() end
-  clk.on_select_external = reset_pattern
-
-  -- add params
-  clk:add_clock_params()
-  params:add_separator()]]
-
   for i = 1, 8 do
     params:add_option(i.."_send_midi", i..": send midi", {"no", "yes"}, 1)
     params:add_number(i.."_midi_chan", i..": midi chan", 1, 16, 1)
@@ -383,7 +370,6 @@ end
 
 function reset_pattern()
   reset = true
-  --clk:reset()
 end
 
 
