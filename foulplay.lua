@@ -105,10 +105,6 @@ local ack = require 'ack/lib/ack'
 local g = grid.connect()
 local m = midi.connect()
 
---local BeatClock = require 'beatclock'
-
---local clk = BeatClock.new()
-
 local alt = 0
 local reset = false
 -- 0 == home, 1 == track edit
