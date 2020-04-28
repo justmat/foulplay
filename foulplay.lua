@@ -105,9 +105,9 @@ local ack = require 'ack/lib/ack'
 local g = grid.connect()
 local m = midi.connect()
 
-local BeatClock = require 'beatclock'
+--local BeatClock = require 'beatclock'
 
-local clk = BeatClock.new()
+--local clk = BeatClock.new()
 
 local alt = 0
 local reset = false
@@ -118,10 +118,18 @@ local track_edit = 1
 local stopped = 1
 local pset_load_mode = false
 local current_pset = 0
+local run = true
 
--- process incoming midi when set to external
+--[[process incoming midi when set to external
 m.event = function(data)
    clk:process_midi(data)
+end]]
+
+function pulse()
+  while run do
+    clock.sync(1/4)
+    step()
+  end
 end
 
 -- a table of midi note on/off status i = 1/0
@@ -210,7 +218,11 @@ local function trig()
       if math.random(100) <= t.prob and t.mute == 0 then
         if params:get(i.."_send_midi") == 1 then
           engine.trig(i-1)
-        else
+        end
+        if i <= 4 and params:get(i .. "_send_crow") == 2 then
+          crow.output[i]()
+        end
+        if params:get(i .. "_send_midi") == 2 then
           m:note_on(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
           note_off_queue[i] = 1
         end
@@ -318,18 +330,23 @@ function init()
 
   screen.line_width(1)
 
-  clk.on_step = step
+  --[[clk.on_step = step
   clk.on_select_internal = function() clk:start() end
   clk.on_select_external = reset_pattern
 
   -- add params
   clk:add_clock_params()
-  params:add_separator()
+  params:add_separator()]]
 
   for i = 1, 8 do
     params:add_option(i.."_send_midi", i..": send midi", {"no", "yes"}, 1)
     params:add_number(i.."_midi_chan", i..": midi chan", 1, 16, 1)
     params:add_number(i.."_midi_note", i..": midi note", 0, 127, 0)
+    if i <= 4 then
+      params:add_option(i .. "_send_crow", i .. ": send crow", {"no", "yes"}, 1)
+    end
+    params:add_separator()
+
     ack.add_channel_params(i)
     params:add_separator()
   end
@@ -341,11 +358,12 @@ function init()
   loadstate()
 
   if stopped==1 then
-    clk:stop()
+    run = false
   else
-    clk:start()
+    run = true
   end
-
+  
+  clock.run(pulse)
   -- grid refresh timer, 15 fps
   metro_grid_redraw = metro.init(function(stage) grid_redraw() end, 1 / 15)
   metro_grid_redraw:start()
@@ -355,12 +373,17 @@ function init()
   -- savestate timer
   metro_save = metro.init(function(stage) savestate() end, 10)
   metro_save:start()
+  
+  -- crow triggers
+  for i = 1, 4 do
+    crow.output[i].action = "pulse(.1, 5, 1)"
+  end
 end
 
 
 function reset_pattern()
   reset = true
-  clk:reset()
+  --clk:reset()
 end
 
 
@@ -417,11 +440,12 @@ function key(n,z)
   if alt==0 and view==0 then
     if n==2 and z==1 then
       if stopped==0 then
-        clk:stop()
+        run = false
         stopped = 1
       elseif stopped==1 then
-        clk:start()
+        run = true
         stopped = 0
+        clock.run(pulse)
       end
     end
   end
@@ -433,7 +457,7 @@ function enc(n,d)
   if alt==1 then
     -- mix volume control
     if n==1 then
-      mix:delta("output", d)
+      params:delta("output", d)
     -- track rotation control
     elseif n==2 then
       gettrack(current_mem_cell, track_edit).rotation = util.clamp(gettrack(current_mem_cell, track_edit).rotation + d, 0, 32)
@@ -441,7 +465,7 @@ function enc(n,d)
       redraw()
     -- bpm control
     elseif n==3 then
-      params:delta("bpm", d)
+      params:delta("clock_tempo", d)
     end
   -- track edit view
   elseif view==1  and page==0 then
@@ -547,9 +571,7 @@ function redraw()
     screen.move(0, 30 + 11)
     screen.text("bpm")
     screen.move(0, 40 + 11)
-    if params:get("clock") == 1 then
-      screen.text(params:get("bpm"))
-    end
+    screen.text(clock.get_tempo())
     if gettrack(current_mem_cell, track_edit).mute == 1 then
       screen.font_face(25)
       screen.font_size(6)
@@ -707,10 +729,11 @@ function g.key(x, y, state)
   -- start and stop button.
   if x == 4 and y == 7 and state == 1 then
     if stopped == 1 then
-      clk:start()
+      run = true
       stopped = 0
+      clock.run(pulse)
     else
-      clk:stop()
+      run = false
       stopped = 1
     end
   end
@@ -736,7 +759,7 @@ function g.key(x, y, state)
       current_pset = cellfromgrid(x, y)
       -- if you were stopped before loading, stay stopped after loading
       if stopped == 1 then
-        clk:stop()
+        run = false
       end
     end
   end
