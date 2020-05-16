@@ -230,7 +230,11 @@ local function trig()
         if math.random(100) <= t.prob and t.mute == 0 then
           if params:get(i.."_send_midi") == 1 then
             engine.trig(i-1)
-          else
+          end
+          if i <= 4 and params:get(i .. "_send_crow") == 2 then
+            crow.output[i]()
+          end
+          if params:get(i .. "_send_midi") == 2 then
             m:note_on(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
             note_off_queue[i] = 1
           end
@@ -247,7 +251,11 @@ local function trig()
         if math.random(100) <= t.prob and t.mute == 0 then
           if params:get(i.."_send_midi") == 1 then
             engine.trig(i-1)
-          else
+          end
+          if i <= 4 and params:get(i .. "_send_crow") == 2 then
+            crow.output[i]()
+          end
+          if params:get(i .. "_send_midi") == 2 then
             m:note_on(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
             note_off_queue[i] = 1
           end
@@ -265,7 +273,11 @@ local function trig()
         if math.random(100) <= t.prob and t.mute == 0 then
           if params:get(i.."_send_midi") == 1 then
             engine.trig(i-1)
-          else
+          end
+          if i <= 4 and params:get(i .. "_send_crow") == 2 then
+            crow.output[i]()
+          end
+          if params:get(i .. "_send_midi") == 2 then 
             m:note_on(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
             note_off_queue[i] = 1
           end
@@ -278,11 +290,15 @@ local function trig()
       end
     -- logical nor
     elseif t.trig_logic == 4 then
-      if not t.s[t.pos] then
+      if not t.s[t.pos] and math.random(100) <= t.prob then
         if not gettrack(current_mem_cell,t.logic_target).s[gettrack(current_mem_cell,t.logic_target).pos] and t.mute == 0 then
           if params:get(i.."_send_midi") == 1 then
             engine.trig(i-1)
-          else
+          end
+          if i <= 4 and params:get(i .. "_send_crow") == 2 then
+            crow.output[i]()
+          end
+          if params:get(i.."_send_midi") == 2 then
             m:note_on(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
             note_off_queue[i] = 1
           end
@@ -295,13 +311,17 @@ local function trig()
       end
     -- logical xor
     elseif t.trig_logic == 5 then
-      if t.mute == 0 then
+      if t.mute == 0 and math.random(100) <= t.prob then
         if not t.s[t.pos] and not gettrack(current_mem_cell,t.logic_target).s[gettrack(current_mem_cell,t.logic_target).pos] then
         elseif t.s[t.pos] and gettrack(current_mem_cell,t.logic_target).s[gettrack(current_mem_cell,t.logic_target).pos] then
         else
           if params:get(i.."_send_midi") == 1 then
             engine.trig(i-1)
-          else
+          end
+          if i <= 4 and params:get(i .. "_send_crow") == 2 then
+            crow.output[i]()
+          end
+          if params:get(i .. "_send_midi") == 2 then
             m:note_on(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
             note_off_queue[i] = 1
           end
