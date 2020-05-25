@@ -114,13 +114,25 @@ local track_edit = 1
 local stopped = 1
 local pset_load_mode = false
 local current_pset = 0
-local run = true
+
+-- for new clock system
+local clock_id = 0
 
 function pulse()
-  while run do
+  while true do
     clock.sync(1/4)
     step()
   end
+end
+
+
+function clock.transport.stop()
+  clock.cancel(clock_id)
+end
+
+
+function clock.transport.start()
+  clock_id = clock.run(pulse)
 end
 
 -- a table of midi note on/off status i = 1/0
@@ -363,12 +375,11 @@ function init()
   loadstate()
 
   if stopped==1 then
-    run = false
+    clock.cancel(clock_id)
   else
-    run = true
+    clock_id = clock.run(pulse)
   end
   
-  clock.run(pulse)
   -- grid refresh timer, 15 fps
   metro_grid_redraw = metro.init(function(stage) grid_redraw() end, 1 / 15)
   metro_grid_redraw:start()
@@ -444,12 +455,11 @@ function key(n,z)
   if alt==0 and view==0 then
     if n==2 and z==1 then
       if stopped==0 then
-        run = false
         stopped = 1
+        clock.cancel(clock_id)
       elseif stopped==1 then
-        run = true
         stopped = 0
-        clock.run(pulse)
+        clock_id = clock.run(pulse)
       end
     end
   end
@@ -733,12 +743,11 @@ function g.key(x, y, state)
   -- start and stop button.
   if x == 4 and y == 7 and state == 1 then
     if stopped == 1 then
-      run = true
       stopped = 0
-      clock.run(pulse)
+      clock_id = clock.run(pulse)
     else
-      run = false
       stopped = 1
+      clock.cancel(clock_id)
     end
   end
   -- reset button
