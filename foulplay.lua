@@ -128,6 +128,7 @@ end
 
 function clock.transport.stop()
   clock.cancel(clock_id)
+  reset_pattern()
 end
 
 
