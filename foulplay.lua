@@ -220,9 +220,7 @@ local function trig()
     -- no trigger logic
     if t.trig_logic==0 and t.s[t.pos]  then
       if math.random(100) <= t.prob and t.mute == 0 then
-        if params:get(i.."_send_midi") == 1 then
-          engine.trig(i-1)
-        end
+        engine.trig(i-1)
         if i <= 4 and params:get(i .. "_send_crow") == 2 then
           crow.output[i]()
         end
@@ -241,9 +239,7 @@ local function trig()
     if t.trig_logic == 1 then
       if t.s[t.pos] and gettrack(current_mem_cell,t.logic_target).s[gettrack(current_mem_cell,t.logic_target).pos]  then
         if math.random(100) <= t.prob and t.mute == 0 then
-          if params:get(i.."_send_midi") == 1 then
-            engine.trig(i-1)
-          end
+          engine.trig(i-1)
           if i <= 4 and params:get(i .. "_send_crow") == 2 then
             crow.output[i]()
           end
@@ -262,9 +258,7 @@ local function trig()
     elseif t.trig_logic == 2 then
       if t.s[t.pos] or gettrack(current_mem_cell,t.logic_target).s[gettrack(current_mem_cell,t.logic_target).pos] then
         if math.random(100) <= t.prob and t.mute == 0 then
-          if params:get(i.."_send_midi") == 1 then
-            engine.trig(i-1)
-          end
+          engine.trig(i-1)
           if i <= 4 and params:get(i .. "_send_crow") == 2 then
             crow.output[i]()
           end
@@ -284,9 +278,7 @@ local function trig()
       if t.s[t.pos] and gettrack(current_mem_cell,t.logic_target).s[gettrack(current_mem_cell,t.logic_target).pos]  then
       elseif t.s[t.pos] then
         if math.random(100) <= t.prob and t.mute == 0 then
-          if params:get(i.."_send_midi") == 1 then
-            engine.trig(i-1)
-          end
+          engine.trig(i-1)
           if i <= 4 and params:get(i .. "_send_crow") == 2 then
             crow.output[i]()
           end
@@ -305,9 +297,7 @@ local function trig()
     elseif t.trig_logic == 4 then
       if not t.s[t.pos] and math.random(100) <= t.prob then
         if not gettrack(current_mem_cell,t.logic_target).s[gettrack(current_mem_cell,t.logic_target).pos] and t.mute == 0 then
-          if params:get(i.."_send_midi") == 1 then
-            engine.trig(i-1)
-          end
+          engine.trig(i-1)
           if i <= 4 and params:get(i .. "_send_crow") == 2 then
             crow.output[i]()
           end
@@ -328,9 +318,7 @@ local function trig()
         if not t.s[t.pos] and not gettrack(current_mem_cell,t.logic_target).s[gettrack(current_mem_cell,t.logic_target).pos] then
         elseif t.s[t.pos] and gettrack(current_mem_cell,t.logic_target).s[gettrack(current_mem_cell,t.logic_target).pos] then
         else
-          if params:get(i.."_send_midi") == 1 then
-            engine.trig(i-1)
-          end
+          engine.trig(i-1)
           if i <= 4 and params:get(i .. "_send_crow") == 2 then
             crow.output[i]()
           end
@@ -347,7 +335,6 @@ local function trig()
     end
   end
 end
-
 
 function init()
   for i=1, 8 do reer(i) end
