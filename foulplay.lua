@@ -459,7 +459,7 @@ function enc(n,d)
   if alt==1 then
     -- mix volume control
     if n==1 then
-      params:delta("output", d)
+      params:delta("output_level", d)
     -- track rotation control
     elseif n==2 then
       gettrack(current_mem_cell, track_edit).rotation = util.clamp(gettrack(current_mem_cell, track_edit).rotation + d, 0, 32)
