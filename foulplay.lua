@@ -213,6 +213,12 @@ local function reer(i)
   end
 end
 
+local function send_midi_note_on(i)
+  if params:get(i .. "_send_midi") == 2 then
+    m:note_on(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
+    note_off_queue[i] = 1
+  end
+end
 
 local function trig()
   -- mute state is ignored for trigger logics
@@ -224,10 +230,7 @@ local function trig()
         if i <= 4 and params:get(i .. "_send_crow") == 2 then
           crow.output[i]()
         end
-        if params:get(i .. "_send_midi") == 2 then
-          m:note_on(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
-          note_off_queue[i] = 1
-        end
+        send_midi_note_on(i)
       end
     else
       if note_off_queue[i] == 1 then
@@ -243,10 +246,7 @@ local function trig()
           if i <= 4 and params:get(i .. "_send_crow") == 2 then
             crow.output[i]()
           end
-          if params:get(i .. "_send_midi") == 2 then
-            m:note_on(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
-            note_off_queue[i] = 1
-          end
+          send_midi_note_on(i)
         else break end
       else
         if note_off_queue[i] == 1 then
@@ -262,10 +262,7 @@ local function trig()
           if i <= 4 and params:get(i .. "_send_crow") == 2 then
             crow.output[i]()
           end
-          if params:get(i .. "_send_midi") == 2 then
-            m:note_on(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
-            note_off_queue[i] = 1
-          end
+          send_midi_note_on(i)
         else break end
       else
         if note_off_queue[i] == 1 then
@@ -282,10 +279,7 @@ local function trig()
           if i <= 4 and params:get(i .. "_send_crow") == 2 then
             crow.output[i]()
           end
-          if params:get(i .. "_send_midi") == 2 then 
-            m:note_on(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
-            note_off_queue[i] = 1
-          end
+          send_midi_note_on(i)
         else break end
       else
         if note_off_queue[i] == 1 then
@@ -301,10 +295,7 @@ local function trig()
           if i <= 4 and params:get(i .. "_send_crow") == 2 then
             crow.output[i]()
           end
-          if params:get(i.."_send_midi") == 2 then
-            m:note_on(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
-            note_off_queue[i] = 1
-          end
+          send_midi_note_on(i)
         else break end
       else
         if note_off_queue[i] == 1 then
@@ -322,10 +313,7 @@ local function trig()
           if i <= 4 and params:get(i .. "_send_crow") == 2 then
             crow.output[i]()
           end
-          if params:get(i .. "_send_midi") == 2 then
-            m:note_on(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
-            note_off_queue[i] = 1
-          end
+          send_midi_note_on(i)
           if note_off_queue[i] == 1 then
             m:note_off(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
             note_off_queue[i] = 0
