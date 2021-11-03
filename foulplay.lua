@@ -101,6 +101,7 @@ er = require 'er'
 
 engine.name = 'Ack'
 local ack = require 'ack/lib/ack'
+local MusicUtil = require "musicutil"
 
 local g = grid.connect()
 local m = midi.connect()
@@ -313,6 +314,12 @@ local function trig()
   end
 end
 
+local function midi_note_formatter(param)
+  note_number = param:get()
+  note_name = MusicUtil.note_num_to_name(note_number, true)
+  return note_number.." ["..note_name.."]"
+end
+
 function init()
   for i=1, 8 do reer(i) end
 
@@ -323,7 +330,7 @@ function init()
     ack.add_channel_params(i)
     params:add_option(i.."_send_midi", i..": send midi", {"no", "yes"}, 1)
     params:add_number(i.."_midi_chan", i..": midi chan", 1, 16, 1)
-    params:add_number(i.."_midi_note", i..": midi note", 0, 127, 0)
+    params:add_number(i.."_midi_note", i..": midi note", 0, 127, 0, midi_note_formatter)
   end
   params:add_separator('crow sends')
   for i = 1, 8 do
