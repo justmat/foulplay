@@ -337,7 +337,7 @@ function init()
     params:add_option(i.."_send_midi", i..": send midi", {"no", "yes"}, 1)
     params:add_option(i.."_midi_target", i..": device", midi_device_names, 1)
     params:add_number(i.."_midi_chan", i..": midi chan", 1, 16, 1)
-    params:add_number(i.."_midi_note", i..": midi note", 0, 127, 0, midi_note_formatter)
+    params:add_number(i.."_midi_note", i..": midi note", 0, 127, 60, midi_note_formatter)
   end
   params:add_separator('crow sends')
   for i = 1, 8 do
