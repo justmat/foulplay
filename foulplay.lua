@@ -220,6 +220,13 @@ local function send_midi_note_on(i)
   end
 end
 
+local function send_midi_note_off(i)
+  if note_off_queue[i] == 1 then
+    m:note_off(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
+    note_off_queue[i] = 0
+  end
+end
+
 local function trig()
   -- mute state is ignored for trigger logics
   for i, t in ipairs(memory_cell[current_mem_cell]) do
@@ -233,10 +240,7 @@ local function trig()
         send_midi_note_on(i)
       end
     else
-      if note_off_queue[i] == 1 then
-        m:note_off(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
-        note_off_queue[i] = 0
-      end
+      send_midi_note_off(i)
     end
     -- logical and
     if t.trig_logic == 1 then
@@ -249,10 +253,7 @@ local function trig()
           send_midi_note_on(i)
         else break end
       else
-        if note_off_queue[i] == 1 then
-          m:note_off(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
-          note_off_queue[i] = 0
-        end
+        send_midi_note_off(i)
       end
     -- logical or
     elseif t.trig_logic == 2 then
@@ -265,10 +266,7 @@ local function trig()
           send_midi_note_on(i)
         else break end
       else
-        if note_off_queue[i] == 1 then
-          m:note_off(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
-          note_off_queue[i] = 0
-        end
+        send_midi_note_off(i)
       end
     -- logical nand
     elseif t.trig_logic == 3 then
@@ -282,10 +280,7 @@ local function trig()
           send_midi_note_on(i)
         else break end
       else
-        if note_off_queue[i] == 1 then
-          m:note_off(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
-          note_off_queue[i] = 0
-        end
+        send_midi_note_off(i)
       end
     -- logical nor
     elseif t.trig_logic == 4 then
@@ -298,10 +293,7 @@ local function trig()
           send_midi_note_on(i)
         else break end
       else
-        if note_off_queue[i] == 1 then
-          m:note_off(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
-          note_off_queue[i] = 0
-        end
+        send_midi_note_off(i)
       end
     -- logical xor
     elseif t.trig_logic == 5 then
@@ -314,10 +306,7 @@ local function trig()
             crow.output[i]()
           end
           send_midi_note_on(i)
-          if note_off_queue[i] == 1 then
-            m:note_off(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
-            note_off_queue[i] = 0
-          end
+          send_midi_note_off(i)
         end
       else break end
     end
