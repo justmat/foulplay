@@ -101,9 +101,11 @@ er = require 'er'
 
 engine.name = 'Ack'
 local ack = require 'ack/lib/ack'
+local MusicUtil = require "musicutil"
 
 local g = grid.connect()
-local m = midi.connect()
+local midi_device = {}
+local midi_device_names = {}
 
 local alt = 0
 local reset = false
@@ -213,6 +215,19 @@ local function reer(i)
   end
 end
 
+local function send_midi_note_on(i)
+  if params:get(i .. "_send_midi") == 2 then
+    midi_device[params:get(i.."_midi_target")]:note_on(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
+    note_off_queue[i] = 1
+  end
+end
+
+local function send_midi_note_off(i)
+  if note_off_queue[i] == 1 then
+    midi_device[params:get(i.."_midi_target")]:note_off(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
+    note_off_queue[i] = 0
+  end
+end
 
 local function trig()
   -- mute state is ignored for trigger logics
@@ -224,16 +239,10 @@ local function trig()
         if i <= 4 and params:get(i .. "_send_crow") == 2 then
           crow.output[i]()
         end
-        if params:get(i .. "_send_midi") == 2 then
-          m:note_on(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
-          note_off_queue[i] = 1
-        end
+        send_midi_note_on(i)
       end
     else
-      if note_off_queue[i] == 1 then
-        m:note_off(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
-        note_off_queue[i] = 0
-      end
+      send_midi_note_off(i)
     end
     -- logical and
     if t.trig_logic == 1 then
@@ -243,16 +252,10 @@ local function trig()
           if i <= 4 and params:get(i .. "_send_crow") == 2 then
             crow.output[i]()
           end
-          if params:get(i .. "_send_midi") == 2 then
-            m:note_on(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
-            note_off_queue[i] = 1
-          end
+          send_midi_note_on(i)
         else break end
       else
-        if note_off_queue[i] == 1 then
-          m:note_off(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
-          note_off_queue[i] = 0
-        end
+        send_midi_note_off(i)
       end
     -- logical or
     elseif t.trig_logic == 2 then
@@ -262,16 +265,10 @@ local function trig()
           if i <= 4 and params:get(i .. "_send_crow") == 2 then
             crow.output[i]()
           end
-          if params:get(i .. "_send_midi") == 2 then
-            m:note_on(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
-            note_off_queue[i] = 1
-          end
+          send_midi_note_on(i)
         else break end
       else
-        if note_off_queue[i] == 1 then
-          m:note_off(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
-          note_off_queue[i] = 0
-        end
+        send_midi_note_off(i)
       end
     -- logical nand
     elseif t.trig_logic == 3 then
@@ -282,16 +279,10 @@ local function trig()
           if i <= 4 and params:get(i .. "_send_crow") == 2 then
             crow.output[i]()
           end
-          if params:get(i .. "_send_midi") == 2 then 
-            m:note_on(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
-            note_off_queue[i] = 1
-          end
+          send_midi_note_on(i)
         else break end
       else
-        if note_off_queue[i] == 1 then
-          m:note_off(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
-          note_off_queue[i] = 0
-        end
+        send_midi_note_off(i)
       end
     -- logical nor
     elseif t.trig_logic == 4 then
@@ -301,16 +292,10 @@ local function trig()
           if i <= 4 and params:get(i .. "_send_crow") == 2 then
             crow.output[i]()
           end
-          if params:get(i.."_send_midi") == 2 then
-            m:note_on(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
-            note_off_queue[i] = 1
-          end
+          send_midi_note_on(i)
         else break end
       else
-        if note_off_queue[i] == 1 then
-          m:note_off(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
-          note_off_queue[i] = 0
-        end
+        send_midi_note_off(i)
       end
     -- logical xor
     elseif t.trig_logic == 5 then
@@ -322,31 +307,37 @@ local function trig()
           if i <= 4 and params:get(i .. "_send_crow") == 2 then
             crow.output[i]()
           end
-          if params:get(i .. "_send_midi") == 2 then
-            m:note_on(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
-            note_off_queue[i] = 1
-          end
-          if note_off_queue[i] == 1 then
-            m:note_off(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
-            note_off_queue[i] = 0
-          end
+          send_midi_note_on(i)
+          send_midi_note_off(i)
         end
       else break end
     end
   end
 end
 
+local function midi_note_formatter(param)
+  note_number = param:get()
+  note_name = MusicUtil.note_num_to_name(note_number, true)
+  return note_number.." ["..note_name.."]"
+end
+
 function init()
   for i=1, 8 do reer(i) end
+
+  for i = 1,#midi.vports do
+    midi_device[i] = midi.connect(i)
+    table.insert(midi_device_names, util.trim_string_to_width(midi_device[i].name,70))
+  end
 
   screen.line_width(1)
   params:add_separator('tracks')
   for i = 1, 8 do
-    params:add_group("track " .. i, 25)
+    params:add_group("track " .. i, 26)
     ack.add_channel_params(i)
     params:add_option(i.."_send_midi", i..": send midi", {"no", "yes"}, 1)
+    params:add_option(i.."_midi_target", i..": device", midi_device_names, 1)
     params:add_number(i.."_midi_chan", i..": midi chan", 1, 16, 1)
-    params:add_number(i.."_midi_note", i..": midi note", 0, 127, 0)
+    params:add_number(i.."_midi_note", i..": midi note", 0, 127, 60, midi_note_formatter)
   end
   params:add_separator('crow sends')
   for i = 1, 8 do
