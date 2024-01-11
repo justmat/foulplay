@@ -220,10 +220,10 @@ local function reer(i)
 end
 
 local function send_midi_note_on(i,p)
-  if params:get(i .. "_send_midi") == 1 then
+  if params:get(i .. "_send_midi") == 2 then
 
-    if params:get(i.."_use_scale") == 1 then
-        if params:get(i.."_rnd_scale_note") == 1 then 
+    if params:get(i.."_use_scale") == 2 then
+        if params:get(i.."_rnd_scale_note") == 2 then 
             p = math.random(p)
         end
         _note_playing = scale_notes[params:get(i.."_midi_scale")][p] - midi_note_root + params:get(i.."_midi_note")
@@ -644,7 +644,7 @@ function redraw()
       screen.text_center("1. midi channel : " .. params:get(track_edit .. "_midi_chan"))
       screen.move(64, 35)
       screen.text_center("2. midi note : " .. params:get(track_edit .. "_midi_note"))
-      if params:get(track_edit .."_use_scale") == 0 then
+      if params:get(track_edit .."_use_scale") == 2 then
         screen.move(64, 45)
         screen.text_center("3. midi scale : " .. MusicUtil.SCALES[params:get(track_edit .. "_midi_scale")].name)
       end
