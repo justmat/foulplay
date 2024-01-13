@@ -117,6 +117,10 @@ local stopped = 1
 local pset_load_mode = false
 local current_pset = 0
 
+local midi_note_root = 60
+local scale_notes = {}
+local scale_names = {}
+
 -- for new clock system
 local clock_id = 0
 
@@ -215,9 +219,20 @@ local function reer(i)
   end
 end
 
-local function send_midi_note_on(i)
+local function send_midi_note_on(i,p)
   if params:get(i .. "_send_midi") == 2 then
-    midi_device[params:get(i.."_midi_target")]:note_on(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
+
+    if params:get(i.."_use_scale") == 2 then
+        if params:get(i.."_rnd_scale_note") == 2 then 
+            p = math.random(p)
+        end
+        _note_playing = scale_notes[params:get(i.."_midi_scale")][p] - midi_note_root + params:get(i.."_midi_note")
+        midi_device[params:get(i.."_midi_target")]:note_on(_note_playing, 100, params:get(i.."_midi_chan"))
+        --print("note on | track:"..i.." | step:"..p.." | scale "..MusicUtil.SCALES[params:get(i.."_midi_scale")].name.." | root:"..params:get(i.."_midi_note").." | note:".._note_playing.." ["..MusicUtil.note_num_to_name(_note_playing, true).."]")
+    else 
+        midi_device[params:get(i.."_midi_target")]:note_on(params:get(i.."_midi_note"), 100, params:get(i.."_midi_chan"))
+    end
+
     note_off_queue[i] = 1
   end
 end
@@ -239,7 +254,7 @@ local function trig()
         if i <= 4 and params:get(i .. "_send_crow") == 2 then
           crow.output[i]()
         end
-        send_midi_note_on(i)
+        send_midi_note_on(i,t.pos)
       end
     else
       send_midi_note_off(i)
@@ -252,7 +267,7 @@ local function trig()
           if i <= 4 and params:get(i .. "_send_crow") == 2 then
             crow.output[i]()
           end
-          send_midi_note_on(i)
+          send_midi_note_on(i,t.pos)
         else break end
       else
         send_midi_note_off(i)
@@ -265,7 +280,7 @@ local function trig()
           if i <= 4 and params:get(i .. "_send_crow") == 2 then
             crow.output[i]()
           end
-          send_midi_note_on(i)
+          send_midi_note_on(i,t.pos)
         else break end
       else
         send_midi_note_off(i)
@@ -279,7 +294,7 @@ local function trig()
           if i <= 4 and params:get(i .. "_send_crow") == 2 then
             crow.output[i]()
           end
-          send_midi_note_on(i)
+          send_midi_note_on(i,t.pos)
         else break end
       else
         send_midi_note_off(i)
@@ -292,7 +307,7 @@ local function trig()
           if i <= 4 and params:get(i .. "_send_crow") == 2 then
             crow.output[i]()
           end
-          send_midi_note_on(i)
+          send_midi_note_on(i,t.pos)
         else break end
       else
         send_midi_note_off(i)
@@ -307,7 +322,7 @@ local function trig()
           if i <= 4 and params:get(i .. "_send_crow") == 2 then
             crow.output[i]()
           end
-          send_midi_note_on(i)
+          send_midi_note_on(i,t.pos)
           send_midi_note_off(i)
         end
       else break end
@@ -329,15 +344,23 @@ function init()
     table.insert(midi_device_names, util.trim_string_to_width(midi_device[i].name,70))
   end
 
+  for i = 1, #MusicUtil.SCALES do
+    table.insert(scale_notes, MusicUtil.generate_scale_of_length(midi_note_root, i, 32))
+    table.insert(scale_names, MusicUtil.SCALES[i].name)
+  end
+
   screen.line_width(1)
   params:add_separator('tracks')
   for i = 1, 8 do
-    params:add_group("track " .. i, 26)
+    params:add_group("track " .. i, 29)
     ack.add_channel_params(i)
     params:add_option(i.."_send_midi", i..": send midi", {"no", "yes"}, 1)
     params:add_option(i.."_midi_target", i..": device", midi_device_names, 1)
     params:add_number(i.."_midi_chan", i..": midi chan", 1, 16, 1)
-    params:add_number(i.."_midi_note", i..": midi note", 0, 127, 60, midi_note_formatter)
+    params:add_number(i.."_midi_note", i..": midi note", 0, 127, midi_note_root, midi_note_formatter)
+    params:add_option(i.."_use_scale", i..": use scale", {"no", "yes"}, 1)
+    params:add_option(i.."_midi_scale", i..": midi scale", scale_names, 1)
+    params:add_option(i.."_rnd_scale_note", i..": randomize scale note", {"no", "yes"}, 1)
   end
   params:add_separator('crow sends')
   for i = 1, 8 do
@@ -474,11 +497,13 @@ function enc(n,d)
       end
     -- if send midi is on
     else
-      -- encoder 1 sets midi channel, 2 selects a note to send
+      -- encoder 1 sets midi channel, 2 selects a note to send, 3 sets scale
       if n==1 then
         params:delta(track_edit .. "_midi_chan", d)
       elseif n==2 then
         params:delta(track_edit .. "_midi_note", d)
+      elseif n==3 then
+        params:delta(track_edit .. "_midi_scale", d)
       end
     end
   elseif view==1 and page==1 then
@@ -619,6 +644,10 @@ function redraw()
       screen.text_center("1. midi channel : " .. params:get(track_edit .. "_midi_chan"))
       screen.move(64, 35)
       screen.text_center("2. midi note : " .. params:get(track_edit .. "_midi_note"))
+      if params:get(track_edit .."_use_scale") == 2 then
+        screen.move(64, 45)
+        screen.text_center("3. midi scale : " .. MusicUtil.SCALES[params:get(track_edit .. "_midi_scale")].name)
+      end
     end
 
   elseif view==1 and page==1 then
